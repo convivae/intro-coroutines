@@ -56,7 +56,7 @@ interface Contributors: CoroutineScope {
         when (getSelectedVariant()) {
             BLOCKING -> { // Blocking UI thread
                 val users = loadContributorsBlocking(service, req)
-                updateResults(users, startTime)
+                updateResults(users, startTime) //用于更新UI,必须放在 UI 线程中
             }
             BACKGROUND -> { // Blocking a background thread
                 loadContributorsBackground(service, req) { users ->

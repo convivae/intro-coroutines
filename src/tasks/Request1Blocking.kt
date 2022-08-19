@@ -7,7 +7,7 @@ fun loadContributorsBlocking(service: GitHubService, req: RequestData) : List<Us
     val repos = service
         .getOrgReposCall(req.org)
         .execute() // Executes request and blocks the current thread 阻塞底层的线程
-        .also { logRepos(req, it) }
+        .also { logRepos(req, it) } // 错误也会在这里打印
         .body() ?: emptyList()
 
     return repos.flatMap { repo ->

@@ -14,5 +14,15 @@ TODO: Write aggregation code.
  The corresponding test can be found in test/tasks/AggregationKtTest.kt.
  You can use 'Navigate | Test' menu action (note the shortcut) to navigate to the test.
 */
-fun List<User>.aggregate(): List<User> =
-    this
+
+/**
+ * 1. 按照 用户名(login) 合并 contributions 的数量
+ * 2. 按 contributions 数量进行降序排序
+ *
+ * Test: AggregationKtTest.kt
+ */
+fun List<User>.aggregate(): List<User> {
+    return this.groupBy { it.login }
+        .map { (login, group) -> User(login, group.sumOf { it.contributions }) }
+        .sortedByDescending { it.contributions }
+}
