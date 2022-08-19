@@ -6,7 +6,7 @@ import retrofit2.Response
 fun loadContributorsBlocking(service: GitHubService, req: RequestData) : List<User> {
     val repos = service
         .getOrgReposCall(req.org)
-        .execute() // Executes request and blocks the current thread
+        .execute() // Executes request and blocks the current thread 阻塞底层的线程
         .also { logRepos(req, it) }
         .body() ?: emptyList()
 
