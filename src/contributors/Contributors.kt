@@ -60,7 +60,7 @@ interface Contributors: CoroutineScope {
             }
             BACKGROUND -> { // Blocking a background thread
                 loadContributorsBackground(service, req) { users ->
-                    SwingUtilities.invokeLater {
+                    SwingUtilities.invokeLater {    //确保 updateResults 发生在主线程（UI线程）
                         updateResults(users, startTime)
                     }
                 }

@@ -22,7 +22,16 @@ TODO: Write aggregation code.
  * Test: AggregationKtTest.kt
  */
 fun List<User>.aggregate(): List<User> {
-    return this.groupBy { it.login }
-        .map { (login, group) -> User(login, group.sumOf { it.contributions }) }
+    // 方法一 groupBy
+//    return this.groupBy { it.login }
+//        .map { (login, group) -> User(login, group.sumOf { it.contributions }) }
+//        .sortedByDescending { it.contributions }
+
+    // 方法二 groupingBy
+    return this.groupingBy { it.login }
+        .aggregate<User, String, Int> { _, accumulator, element, _ ->
+            element.contributions + (accumulator ?: 0)
+        }
+        .map { (k, v) -> User(k, v) }
         .sortedByDescending { it.contributions }
 }
