@@ -7,6 +7,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.http.GET
@@ -18,6 +19,34 @@ interface GitHubService {
     fun getOrgReposCall(
         @Path("org") org: String
     ): Call<List<Repo>>
+
+    /**
+     * 定义为挂起函数
+     * 挂起函数的线程不会被阻塞
+     * 返回值是 List<Repo>，如果出现错误，将会抛异常
+     */
+    @GET("orgs/{org}/repos?per_page=100")
+    suspend fun getOrgSuspendTestRepos(
+        @Path("org") org: String
+    ): List<Repo>
+
+    /**
+     * 定义为挂起函数
+     * 另外，Retrofit 允许返回值被 Response 包裹，
+     * 这使得人工检查错误成为了可能
+     *
+     * “挂起函数 'getOrgRepos' 应该只从协程或另一个挂起函数中调用”。
+     */
+    @GET("orgs/{org}/repos?per_page=100")
+    suspend fun getOrgRepos(
+        @Path("org") org: String
+    ): Response<List<Repo>>
+
+    @GET("repos/{owner}/{repo}/contributors?per_page=100")
+    suspend fun getRepoContributors(
+        @Path("owner") owner: String,
+        @Path("repo") repo: String
+    ): Response<List<User>>
 
     @GET("repos/{owner}/{repo}/contributors?per_page=100")
     fun getRepoContributorsCall(

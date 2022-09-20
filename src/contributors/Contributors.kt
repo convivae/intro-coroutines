@@ -73,6 +73,14 @@ interface Contributors: CoroutineScope {
                 }
             }
             SUSPEND -> { // Using coroutines
+                // 这里launch开始一个新的计算。该计算负责加载数据并显示结果。
+                // 它是可挂起的：它在执行网络请求时被挂起并释放底层线程。
+                // 当网络请求返回结果时，恢复计算。
+                // 这种可暂停的计算称为协程。因此，在这种情况下，launch 启动一个新的协程，负责加载数据并显示结果。
+                //
+                // 协程是在线程之上运行并且可以暂停的计算。
+                // 当协程挂起时，相应的计算会暂停，从线程中移除，并存储在内存中。同时，线程可以自由地被其他活动占用：
+                // 当计算准备好继续时，它会返回到一个线程（不一定是同一个）。
                 launch {
                     val users = loadContributorsSuspend(service, req)
                     updateResults(users, startTime)
