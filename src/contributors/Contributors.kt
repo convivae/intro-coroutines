@@ -20,7 +20,7 @@ enum class Variant {
     CHANNELS          // Request7Channels
 }
 
-interface Contributors: CoroutineScope {
+interface Contributors : CoroutineScope {
 
     val job: Job
 
@@ -58,6 +58,7 @@ interface Contributors: CoroutineScope {
                 val users = loadContributorsBlocking(service, req)
                 updateResults(users, startTime) //用于更新UI,必须放在 UI 线程中
             }
+
             BACKGROUND -> { // Blocking a background thread
                 loadContributorsBackground(service, req) { users ->
                     SwingUtilities.invokeLater {    //确保 updateResults 发生在主线程（UI线程）
@@ -65,6 +66,7 @@ interface Contributors: CoroutineScope {
                     }
                 }
             }
+
             CALLBACKS -> { // Using callbacks
                 loadContributorsCallbacks(service, req) { users ->
                     SwingUtilities.invokeLater {
@@ -72,6 +74,7 @@ interface Contributors: CoroutineScope {
                     }
                 }
             }
+
             SUSPEND -> { // Using coroutines
                 // 这里launch开始一个新的计算。该计算负责加载数据并显示结果。
                 // 它是可挂起的：它在执行网络请求时被挂起并释放底层线程。
@@ -86,18 +89,24 @@ interface Contributors: CoroutineScope {
                     updateResults(users, startTime)
                 }.setUpCancellation()
             }
+
             CONCURRENT -> { // Performing requests concurrently
-                launch {
+                launch(Dispatchers.Default) {
                     val users = loadContributorsConcurrent(service, req)
-                    updateResults(users, startTime)
+                    // updateResults()应该在主 UI 线程上调用
+                    withContext(Dispatchers.Main) {
+                        updateResults(users, startTime)
+                    }
                 }.setUpCancellation()
             }
+
             NOT_CANCELLABLE -> { // Performing requests in a non-cancellable way
                 launch {
                     val users = loadContributorsNotCancellable(service, req)
                     updateResults(users, startTime)
                 }.setUpCancellation()
             }
+
             PROGRESS -> { // Showing progress
                 launch(Dispatchers.Default) {
                     loadContributorsProgress(service, req) { users, completed ->
@@ -107,6 +116,7 @@ interface Contributors: CoroutineScope {
                     }
                 }.setUpCancellation()
             }
+
             CHANNELS -> {  // Performing requests concurrently and showing progress
                 launch(Dispatchers.Default) {
                     loadContributorsChannels(service, req) { users, completed ->
@@ -186,8 +196,7 @@ interface Contributors: CoroutineScope {
         val params = getParams()
         if (params.username.isEmpty() && params.password.isEmpty()) {
             removeStoredParams()
-        }
-        else {
+        } else {
             saveParams(params)
         }
     }
